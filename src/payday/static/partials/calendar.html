@@ -1,0 +1,7 @@
+<form novalidate>
+    <datetimepicker ng-model="WorkDate.date" datetimepicker-config="{ startView: 'day', minView: 'day' }"></datetimepicker>
+    <input type="number" ng-model="WorkDate.hours" required />
+    <button ng-click="submitForm()" ng-disabled="from.$invalid">
+        {{ submitText }}
+    </button>
+</form>
