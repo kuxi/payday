@@ -6,6 +6,7 @@ import json
 import tornado.web
 
 from models import WorkHours
+from services import TimeTrackingService
 
 registry = []
 
@@ -24,6 +25,14 @@ class BaseResource(tornado.web.RequestHandler):
         raise NotImplementedError()
 
 
+class AllHoursResource(BaseResource):
+    url = r'/api/hours/?'
+
+    def get(self):
+        all_hours = WorkHours.all()
+        self.write(json.dumps(all_hours))
+
+
 class HoursResource(BaseResource):
     url = r'/api/hours/(\d{4})/(\d{1,2})/(\d{2})/?'
 
@@ -38,18 +47,24 @@ class HoursResource(BaseResource):
 
     def post(self, year, month, day):
         year, month, day = map(int, (year, month, day))
-        hours = json.loads(self.request.body)['hours']
+        request_body = json.loads(self.request.body)
+        hours = request_body['hours']
+        description = request_body['description']
         the_date = date(year, month, day)
         workhours = WorkHours.get(the_date)
         if workhours:
-            self.set_status(406) #not acceptable
+            self.set_status(406)  # not acceptable
             self.write('406: date already in use')
         else:
             workhours = WorkHours()
             workhours.date = the_date
             workhours.hours = hours
+            workhours.description = description
             workhours.save()
-            self.set_status(201) #created
+            ttservice = TimeTrackingService()
+            ttservice.login()
+            ttservice.log_hours(hours, description)
+            self.set_status(201)  # created
 
 
 def GetRegisteredResources():

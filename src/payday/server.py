@@ -22,6 +22,7 @@ def serve():
     wh = WorkHours()
     wh.date = date.today()
     wh.hours = 5
+    wh.description = "test"
     wh.save()
     server = tornado.httpserver.HTTPServer(tornado_app)
     server.listen(tornado.options.options.port)

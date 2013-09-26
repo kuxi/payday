@@ -12,17 +12,14 @@ angular.module("payday").service("PaydayResource", [
                 return $resource(self.endpoint + "hours/",
                     {},
                     {
-                        get: {method: "GET", isArray: true},
+                        get: {method: "GET", isArray: true}
                     }
                 );
             },
             hours: function(year, month, day) {
                 console.log(self.endpoint + "hours/:year/:month/:day/");
                 return $resource(self.endpoint + "hours/:year/:month/:day/",
-                    {year: year, month: month, day: day},
-                    {
-                        post: {method: "POST"}
-                    }
+                    {year: year, month: month, day: day}
                 );
             }
         };

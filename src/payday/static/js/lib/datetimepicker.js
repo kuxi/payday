@@ -13,17 +13,17 @@
  *    @since        2013-Jul-8
  */
 
-angular.module('ui.bootstrap.datetimepicker', [])
-  .constant('dateTimePickerConfig', {
+angular.module('ui.bootstrap.datetimepicker', []).
+  constant('dateTimePickerConfig', {
     startView: 'day',
     minView: 'minute',
     minuteStep: 5,
     dropdownSelector: null
-  })
-  .constant('dateTimePickerConfigValidation', function (configuration) {
+  }).
+  constant('dateTimePickerConfigValidation', function (configuration) {
     "use strict";
 
-    var validOptions = ['startView', 'minView', 'minuteStep', 'dropdownSelector'];
+    var validOptions = ['startView', 'minView', 'minuteStep', 'dropdownSelector', 'importantDates'];
 
     for (var prop in configuration) {
       if (configuration.hasOwnProperty(prop)) {
@@ -58,8 +58,7 @@ angular.module('ui.bootstrap.datetimepicker', [])
       throw ("dropdownSelector must be a string");
     }
   }
-)
-  .directive('datetimepicker', ['dateTimePickerConfig', 'dateTimePickerConfigValidation', function (defaultConfig, validateConfigurationFunction) {
+).directive('datetimepicker', ['dateTimePickerConfig', 'dateTimePickerConfigValidation', function (defaultConfig, validateConfigurationFunction) {
     "use strict";
 
     return {
@@ -101,7 +100,8 @@ angular.module('ui.bootstrap.datetimepicker', [])
         "   </tbody>" +
         "</table></div>",
       scope: {
-        ngModel: "=ngModel"
+        ngModel: "=ngModel",
+        importantDatesList: "&datetimepickerImportantDates"
       },
       replace: true,
       link: function (scope, element, attrs) {
@@ -117,6 +117,43 @@ angular.module('ui.bootstrap.datetimepicker', [])
         angular.extend(configuration, defaultConfig, directiveConfig);
 
         validateConfigurationFunction(configuration);
+
+        var importantDates = {};
+
+        var distributeDates = function distributeDates(dates) {
+            importantDates = {};
+            for(var i = 0; i < dates.length; i++) {
+                var date = dates[i];
+                var year = {};
+                var month = {};
+                if(date.getFullYear() in dates) {
+                    year = importantDates[date.getFullYear()];
+                } else {
+                    importantDates[date.getFullYear()] = year;
+                }
+                if(date.getMonth() + 1 in year) {
+                    month = year[date.getMonth() + 1];
+                } else {
+                    year[date.getMonth() + 1] = month;
+                }
+                month[date.getDate()] = true;
+            }
+        };
+
+        var isImportant = function isImportant(date) {
+            if(!(date.getFullYear() in importantDates)) {
+                return false;
+            }
+            var year = importantDates[date.getFullYear()];
+            if(!(date.getMonth() + 1 in year)) {
+                return false;
+            }
+            return date.getDate() in month;
+        };
+
+        var getImportantDatesList = function getImportantDatesList() {
+            return scope.importantDatesList() || [];
+        };
 
         var dataFactory = {
           year: function (unixDate) {
@@ -317,8 +354,11 @@ angular.module('ui.bootstrap.datetimepicker', [])
             scope.data = dataFactory[viewName](unixDate);
           }
         };
-        
 
+        scope.$watch("importantDatesList()", function(newValue) {
+            distributeDates(getImportantDatesList());
+        });
+        
         scope.changeView(configuration.startView, getUTCTime());
 
         scope.$watch('ngModel', function () {

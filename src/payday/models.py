@@ -20,6 +20,12 @@ class WorkHours(Base):
 
     date = Column(types.Date, primary_key=True)
     hours = Column(types.Integer, nullable=False)
+    description = Column(types.Text, nullable=False)
+
+    @classmethod
+    def all(cls):
+        session = Session()
+        return session.query(WorkHours).all()
 
     @classmethod
     def get(cls, date):
