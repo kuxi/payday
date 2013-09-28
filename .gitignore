@@ -4,3 +4,4 @@ include/
 local/
 *.pyc
 db.sql
+settings_local.py
