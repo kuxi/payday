@@ -62,8 +62,11 @@ class HoursResource(BaseResource):
             workhours.description = description
             workhours.save()
             ttservice = TimeTrackingService()
-            ttservice.login()
-            ttservice.log_hours(hours, description)
+            try:
+                ttservice.login()
+                ttservice.log_hours(hours, description)
+            except Exception as e:
+                print "Unable to sync with time tracking service", e
             self.set_status(201)  # created
 
 

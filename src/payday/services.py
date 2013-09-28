@@ -6,29 +6,36 @@ import requests
 import settings
 
 
+class TimeTrackingError(requests.ConnectionError):
+    pass
+
+
+def wrap_connection_errors(func):
+    def decorated(*args, **kwargs):
+        try:
+            return func(*args, **kwargs)
+        except requests.ConnectionError as e:
+            raise TimeTrackingError(e)
+    return decorated
+
+
 class TimeTrackingService(object):
     def __init__(self):
         self.session = None
 
+    @wrap_connection_errors
     def login(self):
-        self.session = requests.Session()
-        response = self.session.get(settings.time_tracking_login_url)
+        session = requests.Session()
+        response = session.get(settings.time_tracking_login_url)
         if response.status_code != 200:
-            #TODO: error handling
-            print 'Unable to get time_tracking_login_url'
-            self.session = None
-            return
+            raise TimeTrackingError('Unable to get time_tracking_login_url')
         results = re.findall('VIEWSTATE" value="(.*)" />', response.text)
         if not results:
-            #TODO: error handling
-            print "didn't find event viewstate"
-            return
+            raise TimeTrackingError("didn't find event viewstate")
         viewstate = results[0]
         results = re.findall('EVENTVALIDATION" value="(.*)" />', response.text)
         if not results:
-            #TODO: error handling
-            print "didn't find event validation"
-            return
+            raise TimeTrackingError("didn't find event validation")
         event_validation = results[0]
         data = {
             '__LASTFOCUS': '',
@@ -40,38 +47,29 @@ class TimeTrackingService(object):
             'ctl00$ContentPlaceHolderEmpty$edtPassword': settings.time_tracking_pass,
             'ctl00$ContentPlaceHolderEmpty$Button1': u'Skrá inn',
         }
-        response = self.session.post(
+        response = session.post(
             settings.time_tracking_login_url, data=data)
         if response.status_code != 200 or response.url == settings.time_tracking_login_url:
-            #TODO: error handling
-            print 'login failed'
-            self.session = None
-            return
+            raise TimeTrackingError('login failed')
+        self.session = session
 
+    @wrap_connection_errors
     def log_hours(self, hours, description):
         if not self.session:
-            #TODO: error handling
-            print 'No valid session to log hours'
-            return
+            raise TimeTrackingError('No valid session to log hours')
         time_tracking_job_no = 'VE090054'
         time_tracking_phase = '4100'
 
         response = self.session.get(settings.time_tracking_hours_url)
         if response.status_code != 200:
-            #TODO: error handling
-            print 'failed to retrieve time_tracking_hours url'
-            return
+            raise TimeTrackingError('failed to retrieve time_tracking_hours url')
         results = re.findall('VIEWSTATE" value="(.*)" />', response.text)
         if not results:
-            #TODO: error handling
-            print "didn't find viewstate"
-            return
+            raise TimeTrackingError("didn't find viewstate")
         viewstate = results[0]
         results = re.findall('EVENTVALIDATION" value="(.*)" />', response.text)
         if not results:
-            #TODO: error handling
-            print "didn't find eventvalidation"
-            return
+            raise TimeTrackingError("didn't find eventvalidation")
         event_validation = results[0]
         data = {
             'ctl00$smMasterWebTime': 'ctl00$ContentPlaceHolderWebTime$' +
@@ -107,4 +105,4 @@ class TimeTrackingService(object):
         response = self.session.post(
             settings.time_tracking_hours_url, data=data)
         if response.status_code != 200:
-            print 'posting hours failed'
+            raise TimeTrackingError('posting hours failed')
