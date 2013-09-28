@@ -14,8 +14,9 @@ angular.module("payday").controller("TimeCtrl", [
 
         var updateSelectedDate = function updateSelectedDate(workHours) {
             $scope.submitText = "Save";
-            $scope.WorkDate.hours = 0;
+            $scope.WorkDate.hours = "";
             $scope.WorkDate.description = "";
+            $scope.hoursForm.$setPristine();
             for(var i = 0; i < workHours.length; i++) {
                 if($scope.datesMatch(workHours[i].date, $scope.WorkDate.date)) {
                     $scope.submitText = "Update";
@@ -46,19 +47,21 @@ angular.module("payday").controller("TimeCtrl", [
             updateSelectedDate($scope.allWorkHours);
         });
         
-        $scope.submitForm = function submitForm() {
-            var date = $scope.WorkDate.date;
-            var year = date.getFullYear();
-            var month = date.getMonth() + 1;
-            var day = date.getDate();
-            var data = {
-                hours: $scope.WorkDate.hours,
-                description: $scope.WorkDate.description
-            };
-            PaydayResource.hours(year, month, day).save(data, function(data) {
-                console.log(data);
-            });
-            $scope.updateImportantDates();
+        $scope.submitForm = function submitForm(form) {
+            if(form.$valid) {
+                var date = $scope.WorkDate.date;
+                var year = date.getFullYear();
+                var month = date.getMonth() + 1;
+                var day = date.getDate();
+                var data = {
+                    hours: $scope.WorkDate.hours,
+                    description: $scope.WorkDate.description
+                };
+                PaydayResource.hours(year, month, day).save(data, function(data) {
+                    console.log(data);
+                    $scope.updateImportantDates();
+                });
+            }
         };
 
         $scope.updateImportantDates();
