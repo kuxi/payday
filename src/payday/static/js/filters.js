@@ -33,7 +33,6 @@ angular.module("payday").filter("select", function($parse) {
         for(i = 0; i < input.length; i++) {
             var context = {};
             context[itemName] = input[i];
-            console.log(context);
             var item = $parse(expression)(context);
             items.push(item);
         }
