@@ -12,18 +12,14 @@ tornado.options.define('port', type=int, default=settings.port)
 
 
 def serve():
-    tornado_app = tornado.web.Application([
-        (r'/', MainHandler),
-        (r'/static/(.*)', tornado.web.StaticFileHandler,
-            {'path': settings.static_path}),
-    ] + api.GetRegisteredResources())
-    from models import WorkHours
-    from datetime import date
-    wh = WorkHours()
-    wh.date = date.today()
-    wh.hours = 5
-    wh.description = "test"
-    wh.save()
+    handlers = [(r'/', MainHandler)]
+    if hasattr(settings, 'favicon_path'):
+        handlers.append((r'/(favicon.ico)', tornado.web.StaticFileHandler,
+                        {'path': settings.favicon_path}))
+    handlers.append((r'/static/(.*)', tornado.web.StaticFileHandler,
+                    {'path': settings.static_path}))
+    handlers.extend(api.GetRegisteredResources())
+    tornado_app = tornado.web.Application(handlers)
     server = tornado.httpserver.HTTPServer(tornado_app)
     server.listen(tornado.options.options.port)
     tornado.ioloop.IOLoop.instance().start()
