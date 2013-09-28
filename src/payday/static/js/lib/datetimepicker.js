@@ -126,7 +126,7 @@ angular.module('ui.bootstrap.datetimepicker', []).
                 var date = dates[i];
                 var year = {};
                 var month = {};
-                if(date.getFullYear() in dates) {
+                if(date.getFullYear() in importantDates) {
                     year = importantDates[date.getFullYear()];
                 } else {
                     importantDates[date.getFullYear()] = year;
