@@ -11,7 +11,7 @@ from sqlalchemy import types
 from sqlalchemy import Column
 
 Base = declarative_base()
-engine = create_engine("sqlite://")
+engine = create_engine("sqlite:///db.sql")
 Session = sessionmaker(bind=engine)
 
 
