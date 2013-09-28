@@ -1,9 +1,36 @@
-<form novalidate ng-show="!isLoading">
-    <datetimepicker ng-model="WorkDate.date" datetimepicker-config="{ startView: 'day', minView: 'day' }" datetimepicker-important-dates=" allWorkHours | select:'workHours':'workHours.date'"></datetimepicker>
-    <input type="number" ng-model="WorkDate.hours" required />
-    <input type="text" ng-model="WorkDate.description" required />
-    <button ng-click="submitForm()" ng-disabled="from.$invalid">
-        {{ submitText }}
-    </button>
-</form>
-<img src="/static/img/spinner.gif" alt="loading..." ng-show="isLoading" />
+<div class="container">
+    <div class="row">
+        <div class="col-md-6 well">
+            <form novalidate ng-show="!isLoading" name="hoursForm">
+                <div class="row">
+                    <div class="col-md-6">
+                        <datetimepicker ng-model="WorkDate.date" datetimepicker-config="{ startView: 'day', minView: 'day' }" datetimepicker-important-dates=" allWorkHours | select:'workHours':'workHours.date'"></datetimepicker>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="row">
+                            <input type="number" name="hours" class="form-control" placeholder="Hours Worked" min="0" ng-model="WorkDate.hours" required />
+                        </div>
+                        <div class="row">
+                            <span ng-show="hoursForm.hours.$dirty && hoursForm.hours.$error.min" class="alert-danger">Must be a positive number</span>
+                            <span ng-show="hoursForm.hours.$dirty && hoursForm.hours.$error.required" class="alert-danger">Required</span>
+                        </div>
+                        
+                        <div class="row">
+                            <input type="text" name="description" class="form-control" placeholder="Description" ng-model="WorkDate.description" required />
+                        </div>
+                        <div class="row">
+                            <span ng-show="hoursForm.description.$dirty && hoursForm.description.$error.required" class="alert-danger">Required</span>
+                        </div>
+
+                        <div class="row">
+                            <button class="btn btn-block btn-primary" ng-click="submitForm(hoursForm)" ng-disabled="hoursForm.$invalid">
+                                {{ submitText }}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+            <img src="/static/img/spinner.gif" alt="loading..." ng-show="isLoading" />
+        </div>
+    </div>
+</div>
