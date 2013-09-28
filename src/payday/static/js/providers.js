@@ -25,3 +25,21 @@ angular.module("payday").service("PaydayResource", [
         };
     }
 ]);
+
+angular.module("payday").factory("ImportantDates", function($q, PaydayResource) {
+    var deferred = $q.defer();
+    PaydayResource.allHours().get().$then(function success(response) {
+        var dates = [];
+        for(var i = 0; i < response.data.length; i++) {
+            var item = response.data[i];
+            var date = item.date;
+            var dateObj = new Date(date.year, date.month - 1, date.day);
+            item.date = dateObj;
+            dates.push(item);
+        }
+        deferred.resolve(dates);
+    }, function error(response) {
+        deferred.reject("error retrieving important dates!");
+    });
+    return deferred.promise;
+});

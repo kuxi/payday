@@ -1,8 +1,9 @@
-<form novalidate>
-    <datetimepicker ng-model="WorkDate.date" datetimepicker-config="{ startView: 'day', minView: 'day' }" datetimepicker-important-dates=" allDates "></datetimepicker>
+<form novalidate ng-show="!isLoading">
+    <datetimepicker ng-model="WorkDate.date" datetimepicker-config="{ startView: 'day', minView: 'day' }" datetimepicker-important-dates=" allWorkHours | select:'workHours':'workHours.date'"></datetimepicker>
     <input type="number" ng-model="WorkDate.hours" required />
     <input type="text" ng-model="WorkDate.description" required />
     <button ng-click="submitForm()" ng-disabled="from.$invalid">
         {{ submitText }}
     </button>
 </form>
+<img src="/static/img/spinner.gif" alt="loading..." ng-show="isLoading" />

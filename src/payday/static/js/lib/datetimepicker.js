@@ -95,7 +95,7 @@ angular.module('ui.bootstrap.datetimepicker', []).
         "           <td data-ng-repeat='dateValue in week.dates' " +
         "               data-ng-click=\"changeView('{{ data.nextView }}', {{ dateValue.date }}, $event)\"" +
         "               class='day' " +
-        "               data-ng-class='{active: dateValue.active, past: dateValue.past, future: dateValue.future}' >{{ dateValue.display }}</td>" +
+        "               data-ng-class='{active: dateValue.active, past: dateValue.past, future: dateValue.future, important: isImportant(dateValue.date)}' >{{ dateValue.display }}</td>" +
         "       </tr>" +
         "   </tbody>" +
         "</table></div>",
@@ -140,7 +140,8 @@ angular.module('ui.bootstrap.datetimepicker', []).
             }
         };
 
-        var isImportant = function isImportant(date) {
+        scope.isImportant = function isImportant(time) {
+            var date = new Date(time);
             if(!(date.getFullYear() in importantDates)) {
                 return false;
             }
@@ -148,6 +149,7 @@ angular.module('ui.bootstrap.datetimepicker', []).
             if(!(date.getMonth() + 1 in year)) {
                 return false;
             }
+            var month = year[date.getMonth() + 1];
             return date.getDate() in month;
         };
 

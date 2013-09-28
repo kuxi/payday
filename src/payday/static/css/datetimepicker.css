@@ -146,6 +146,9 @@
 .datetimepicker table tr td.future {
   color: #999999;
 }
+.datetimepicker table tr td.important {
+  background-color: #8888e7;
+}
 .datetimepicker table tr td.disabled,
 .datetimepicker table tr td.disabled:hover {
   background: none;
