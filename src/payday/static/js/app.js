@@ -1,13 +1,14 @@
 var payday = angular.module("payday", [
     "ui.bootstrap.datetimepicker",
-    "ngResource"
+    "ngResource",
+    "ngRoute"
 ]);
 
 payday.config([
     "$routeProvider",
     function($routeProvider) {
-        $routeProvider
-            .when("/", {
+        $routeProvider.
+            when("/", {
                 templateUrl: "/static/partials/calendar.html",
                 controller: "TimeCtrl"
             });

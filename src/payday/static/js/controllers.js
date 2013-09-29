@@ -31,7 +31,7 @@ angular.module("payday").controller("TimeCtrl", [
             ImportantDates().then(function(allWorkHours) {
                 $scope.allWorkHours = allWorkHours;
                 updateSelectedDate(allWorkHours);
-            }).always(function() {
+            }).finally(function() {
                 $scope.loadingAllDates = false;
             });
         };
