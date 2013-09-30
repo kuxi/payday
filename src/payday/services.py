@@ -21,6 +21,7 @@ def wrap_connection_errors(func):
 
 
 class MaritechTimeTracking(object):
+
     def __init__(self):
         self.login_url = settings.maritech_login_url
         self.log_url = settings.maritech_log_url
@@ -28,6 +29,8 @@ class MaritechTimeTracking(object):
         self.password = settings.maritech_pass
         self.session = None
         self.viewstate = None
+        self.job_no = 'VE090054'  # Gagnavarslan - CoreData þróun
+        self.phase = '4100'  # Þróun hugbúnaðar
         self.event_validation = None
 
     @wrap_connection_errors
@@ -137,8 +140,6 @@ class MaritechTimeTracking(object):
         self._validate_state()
         if date != date.today():
             self.change_date(date)
-        time_tracking_job_no = 'VE090054'
-        time_tracking_phase = '4100'
 
         #form data
         data = {
@@ -155,9 +156,9 @@ class MaritechTimeTracking(object):
             '__LASTFOCUS': '',
             '__VIEWSTATE': self.viewstate,
             '__EVENTVALIDATION': self.event_validation,
-            'ctl00$ContentPlaceHolderWebTime$txtJobNo': time_tracking_job_no,
+            'ctl00$ContentPlaceHolderWebTime$txtJobNo': self.job_no,
             'ctl00$ContentPlaceHolderWebTime$txtJobDesc': '',
-            'ctl00$ContentPlaceHolderWebTime$txtPhase': time_tracking_phase,
+            'ctl00$ContentPlaceHolderWebTime$txtPhase': self.phase,
             'ctl00$ContentPlaceHolderWebTime$txtPhaseDesc': '',
             'ctl00$ContentPlaceHolderWebTime$txtDescription': description,
             'ctl00$ContentPlaceHolderWebTime$txtDescription2': '',
