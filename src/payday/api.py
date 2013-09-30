@@ -6,7 +6,7 @@ import json
 import tornado.web
 
 import settings
-from models import WorkHours
+from models import WorkLog
 
 registry = []
 
@@ -29,8 +29,8 @@ class AllHoursResource(BaseResource):
     url = r'/api/hours/?'
 
     def get(self):
-        all_hours = WorkHours.all()
-        self.write(json.dumps(all_hours))
+        all_logs = WorkLog.all()
+        self.write(json.dumps(all_logs))
 
 
 class HoursResource(BaseResource):
@@ -38,9 +38,9 @@ class HoursResource(BaseResource):
 
     def get(self, year, month, day):
         year, month, day = map(int, (year, month, day))
-        workhours = WorkHours.get(date(year, month, day))
-        if workhours:
-            self.write(json.dumps(workhours))
+        logs = WorkLog.get(date(year, month, day))
+        if logs:
+            self.write(json.dumps(logs))
         else:
             self.set_status(404)
             self.write('404: not found')
@@ -58,17 +58,17 @@ class HoursResource(BaseResource):
         description = request_body['description']
 
         if id:
-            workhours = WorkHours.get(id)
-            if not workhours:
+            log = WorkLog.get(id)
+            if not log:
                 self.set_status(400)
                 self.write('400: No log with id %s' % id)
                 return
         else:
-            workhours = WorkHours()
-        workhours.date = the_date
-        workhours.hours = hours
-        workhours.description = description
-        workhours.save()
+            log = WorkLog()
+        log.date = the_date
+        log.hours = hours
+        log.description = description
+        log.save()
         for time_tracker in settings.time_trackers:
             try:
                 time_tracker.log_hours(the_date, hours, description)
@@ -81,8 +81,8 @@ class HoursResource(BaseResource):
         year, month, day = map(int, (year, month, day))
         the_date = date(year, month, day)
         id = self.get_argument('id')
-        workHours = WorkHours.get(id)
-        workHours.delete()
+        log = WorkLog.get(id)
+        log.delete()
 
 
 def GetRegisteredResources():

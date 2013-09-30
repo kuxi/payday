@@ -15,7 +15,7 @@ engine = create_engine("sqlite://")
 Session = sessionmaker(bind=engine)
 
 
-class WorkHours(Base):
+class WorkLog(Base):
     __tablename__ = 'work_hours'
 
     id = Column(types.Integer, primary_key=True)
@@ -26,24 +26,24 @@ class WorkHours(Base):
     @classmethod
     def all(cls):
         session = Session()
-        workHours = session.query(WorkHours).all()
+        logs = session.query(WorkLog).all()
         session.close()
-        return workHours
+        return logs
 
     @classmethod
     def get_for_date(cls, date):
         session = Session()
-        workHours = session.query(WorkHours).\
-            filter(WorkHours.date == date).all()
+        logs = session.query(WorkLog).\
+            filter(WorkLog.date == date).all()
         session.close()
-        return workHours
+        return logs
 
     @classmethod
     def get(cls, id):
         session = Session()
-        workHours = session.query(WorkHours).get(id)
+        log = session.query(WorkLog).get(id)
         session.close()
-        return workHours
+        return log
 
     def save(self):
         session = Session()
