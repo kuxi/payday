@@ -34,7 +34,7 @@ class AllHoursResource(BaseResource):
 
 
 class HoursResource(BaseResource):
-    url = r'/api/hours/(\d{4})/(\d{1,2})/(\d{2})/?'
+    url = r'/api/hours/(\d{4})/(\d{1,2})/(\d{1,2})/?'
 
     def get(self, year, month, day):
         year, month, day = map(int, (year, month, day))
