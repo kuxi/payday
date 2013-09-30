@@ -72,7 +72,7 @@ class HoursResource(BaseResource):
         for time_tracker in settings.time_trackers:
             try:
                 time_tracker.login()
-                time_tracker.log_hours(hours, description)
+                time_tracker.log_hours(the_date, hours, description)
             except Exception as e:
                 print "Unable to sync with time tracking service", e
         if id:
