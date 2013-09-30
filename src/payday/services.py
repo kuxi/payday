@@ -3,8 +3,6 @@ import re
 
 import requests
 
-import settings
-
 
 class TimeTrackingError(requests.ConnectionError):
     pass
@@ -20,13 +18,17 @@ def wrap_connection_errors(func):
 
 
 class TimeTrackingService(object):
-    def __init__(self):
+    def __init__(self, login_url, log_url, username, password):
+        self.login_url = login_url
+        self.log_url = log_url
+        self.username = username
+        self.password = password
         self.session = None
 
     @wrap_connection_errors
     def login(self):
         session = requests.Session()
-        response = session.get(settings.time_tracking_login_url)
+        response = session.get(self.login_url)
         if response.status_code != 200:
             raise TimeTrackingError('Unable to get time_tracking_login_url')
         results = re.findall('VIEWSTATE" value="(.*)" />', response.text)
@@ -43,13 +45,13 @@ class TimeTrackingService(object):
             '__EVENTARGUMENT': '',
             '__VIEWSTATE': viewstate,
             '__EVENTVALIDATION': event_validation,
-            'ctl00$ContentPlaceHolderEmpty$edtUsername': settings.time_tracking_user,
-            'ctl00$ContentPlaceHolderEmpty$edtPassword': settings.time_tracking_pass,
+            'ctl00$ContentPlaceHolderEmpty$edtUsername': self.username,
+            'ctl00$ContentPlaceHolderEmpty$edtPassword': self.password,
             'ctl00$ContentPlaceHolderEmpty$Button1': u'Skrá inn',
         }
         response = session.post(
-            settings.time_tracking_login_url, data=data)
-        if response.status_code != 200 or response.url == settings.time_tracking_login_url:
+            self.login_url, data=data)
+        if response.status_code != 200 or response.url == self.login_url:
             raise TimeTrackingError('login failed')
         self.session = session
 
@@ -60,9 +62,10 @@ class TimeTrackingService(object):
         time_tracking_job_no = 'VE090054'
         time_tracking_phase = '4100'
 
-        response = self.session.get(settings.time_tracking_hours_url)
+        response = self.session.get(self.log_url)
         if response.status_code != 200:
-            raise TimeTrackingError('failed to retrieve time_tracking_hours url')
+            raise TimeTrackingError(
+                'failed to retrieve time_tracking_hours url')
         results = re.findall('VIEWSTATE" value="(.*)" />', response.text)
         if not results:
             raise TimeTrackingError("didn't find viewstate")
@@ -103,6 +106,6 @@ class TimeTrackingService(object):
             'ctl00$ContentPlaceHolderWebTime$txtSearchDim4': '',
         }
         response = self.session.post(
-            settings.time_tracking_hours_url, data=data)
+            self.log_url, data=data)
         if response.status_code != 200:
             raise TimeTrackingError('posting hours failed')

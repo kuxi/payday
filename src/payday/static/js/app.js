@@ -1,5 +1,6 @@
 var payday = angular.module("payday", [
     "ui.bootstrap.datetimepicker",
+    "ui.bootstrap",
     "ngResource",
     "ngRoute"
 ]);

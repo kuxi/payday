@@ -20,6 +20,18 @@ def serve():
                     {'path': settings.static_path}))
     handlers.extend(api.GetRegisteredResources())
     tornado_app = tornado.web.Application(handlers)
+    from models import WorkHours
+    from datetime import date
+    wd = WorkHours()
+    wd.date = date.today()
+    wd.hours = 5
+    wd.description = "derp"
+    wd.save()
+    wd = WorkHours()
+    wd.date = date.today()
+    wd.hours = 6
+    wd.description = "herp"
+    wd.save()
     server = tornado.httpserver.HTTPServer(tornado_app)
     server.listen(tornado.options.options.port)
     tornado.ioloop.IOLoop.instance().start()

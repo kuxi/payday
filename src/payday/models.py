@@ -11,31 +11,51 @@ from sqlalchemy import types
 from sqlalchemy import Column
 
 Base = declarative_base()
-engine = create_engine("sqlite:///db.sql")
+engine = create_engine("sqlite://")
 Session = sessionmaker(bind=engine)
 
 
 class WorkHours(Base):
     __tablename__ = 'work_hours'
 
-    date = Column(types.Date, primary_key=True)
+    id = Column(types.Integer, primary_key=True)
+    date = Column(types.Date, nullable=False)
     hours = Column(types.Integer, nullable=False)
     description = Column(types.Text, nullable=False)
 
     @classmethod
     def all(cls):
         session = Session()
-        return session.query(WorkHours).all()
+        workHours = session.query(WorkHours).all()
+        session.close()
+        return workHours
 
     @classmethod
-    def get(cls, date):
+    def get_for_date(cls, date):
         session = Session()
-        return session.query(WorkHours).filter(WorkHours.date == date).first()
+        workHours = session.query(WorkHours).\
+            filter(WorkHours.date == date).all()
+        session.close()
+        return workHours
+
+    @classmethod
+    def get(cls, id):
+        session = Session()
+        workHours = session.query(WorkHours).get(id)
+        session.close()
+        return workHours
 
     def save(self):
         session = Session()
         session.add(self)
         session.commit()
+        session.close()
+
+    def delete(self):
+        session = Session()
+        session.delete(self)
+        session.commit()
+        session.close()
 
 Base.metadata.create_all(bind=engine)
 

@@ -5,8 +5,8 @@ import json
 
 import tornado.web
 
+import settings
 from models import WorkHours
-from services import TimeTrackingService
 
 registry = []
 
@@ -47,27 +47,43 @@ class HoursResource(BaseResource):
 
     def post(self, year, month, day):
         year, month, day = map(int, (year, month, day))
+        the_date = date(year, month, day)
         request_body = json.loads(self.request.body)
+        if any(x not in request_body for x in ['hours', 'description']):
+            self.set_status(400)
+            self.write('400: Required parameter missing')
+            return
+        id = request_body.get('id', None)
         hours = request_body['hours']
         description = request_body['description']
-        the_date = date(year, month, day)
-        workhours = WorkHours.get(the_date)
-        if workhours:
-            self.set_status(406)  # not acceptable
-            self.write('406: date already in use')
+
+        if id:
+            workhours = WorkHours.get(id)
+            if not workhours:
+                self.set_status(400)
+                self.write('400: No log with id %s' % id)
+                return
         else:
             workhours = WorkHours()
-            workhours.date = the_date
-            workhours.hours = hours
-            workhours.description = description
-            workhours.save()
-            ttservice = TimeTrackingService()
+        workhours.date = the_date
+        workhours.hours = hours
+        workhours.description = description
+        workhours.save()
+        for time_tracker in settings.time_trackers:
             try:
-                ttservice.login()
-                ttservice.log_hours(hours, description)
+                time_tracker.login()
+                time_tracker.log_hours(hours, description)
             except Exception as e:
                 print "Unable to sync with time tracking service", e
+        if id:
             self.set_status(201)  # created
+
+    def delete(self, year, month, day):
+        year, month, day = map(int, (year, month, day))
+        the_date = date(year, month, day)
+        id = self.get_argument('id')
+        workHours = WorkHours.get(id)
+        workHours.delete()
 
 
 def GetRegisteredResources():
