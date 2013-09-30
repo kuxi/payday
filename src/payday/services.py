@@ -4,6 +4,8 @@ from datetime import date
 
 import requests
 
+import settings
+
 
 class TimeTrackingError(requests.ConnectionError):
     pass
@@ -18,12 +20,12 @@ def wrap_connection_errors(func):
     return decorated
 
 
-class TimeTrackingService(object):
-    def __init__(self, login_url, log_url, username, password):
-        self.login_url = login_url
-        self.log_url = log_url
-        self.username = username
-        self.password = password
+class MaritechTimeTracking(object):
+    def __init__(self):
+        self.login_url = settings.maritech_login_url
+        self.log_url = settings.maritech_log_url
+        self.username = settings.maritech_user
+        self.password = settings.maritech_pass
         self.session = None
         self.viewstate = None
         self.event_validation = None
