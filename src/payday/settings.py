@@ -22,12 +22,20 @@ try:
 except ImportError:
     pass
 
-time_trackers = [
-    TimeTrackingService(
+print "Initializing time trackers"
+time_trackers = []
+all_time_trackers = [
+    time_trackers.append(TimeTrackingService(
         time_tracking_login_url,
         time_tracking_hours_url,
         time_tracking_user,
-        time_tracking_pass),
+        time_tracking_pass))
 ]
-
-#time_trackers = []
+for time_tracker in time_trackers:
+    try:
+        time_tracker.login()
+        time_trackers.append(time_tracker)
+    except:
+        #make sure not to halt if services fail to startup
+        pass
+print "Initialization done"

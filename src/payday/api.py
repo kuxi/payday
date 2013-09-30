@@ -71,7 +71,6 @@ class HoursResource(BaseResource):
         workhours.save()
         for time_tracker in settings.time_trackers:
             try:
-                time_tracker.login()
                 time_tracker.log_hours(the_date, hours, description)
             except Exception as e:
                 print "Unable to sync with time tracking service", e
